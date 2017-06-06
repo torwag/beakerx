@@ -27,10 +27,16 @@ public class GroovyCommOpenHandler extends CommOpenHandler{
      new KernelControlSetShellHandler(kernel),
      new GroovyCommKernelControlSetShellHandler(kernel),
      new KernelControlInterrupt(kernel),
-     new KernelControlCommandListHandler(kernel)};
+     new KernelControlCommandListHandler(kernel)
+     };
 
  private Handler<?>[] KERNEL_GET_CODECELLS_CHANNEL_HANDLER = {
-     new GetCodeCellsHandler(kernel)};
+     new GetCodeCellsHandler(kernel, com.twosigma.beaker.NamespaceClient.MESSAGE_POOL_CODE_CELLS)
+     };
+ 
+ private Handler<?>[] KERNEL_RUN_BY_TAG_HANDLER = {
+     new GetCodeCellsHandler(kernel, com.twosigma.beaker.NamespaceClient.MESSAGE_POOL_RUN_BY_TAG)
+     };
 
   public GroovyCommOpenHandler(KernelFunctionality kernel) {
     super(kernel);
@@ -41,8 +47,9 @@ public class GroovyCommOpenHandler extends CommOpenHandler{
       return (Handler<Message>[]) KERNEL_CONTROL_CHANNEL_HANDLERS;
     }else if(TargetNamesEnum.BEAKER_GETCODECELLS.getTargetName().equalsIgnoreCase(targetName)){
       return (Handler<Message>[]) KERNEL_GET_CODECELLS_CHANNEL_HANDLER;
-    }
-    else{
+    }else if(TargetNamesEnum.BEAKER_TAG_RUN.getTargetName().equalsIgnoreCase(targetName)){
+      return (Handler<Message>[]) KERNEL_RUN_BY_TAG_HANDLER;
+    }else{
       return (Handler<Message>[]) new Handler<?>[0];
     }
   }

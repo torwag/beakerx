@@ -34,7 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BeakerCodeCell {
+  
   private final static Logger logger = LoggerFactory.getLogger(BeakerCodeCell.class.getName());
+    
+  @JsonProperty("cell_id")
+  private String cellId;
   @JsonProperty("execution_count")
   private String executionCount;
   @JsonProperty("cell_type")
@@ -85,6 +89,14 @@ public class BeakerCodeCell {
     this.source = source;
   }
 
+  public String getCellId() {
+    return cellId;
+  }
+
+  public void setCellId(String cellId) {
+    this.cellId = cellId;
+  }
+
   public static class Serializer extends JsonSerializer<BeakerCodeCell> {
 
     private final Provider<BeakerObjectConverter> objectSerializerProvider;
@@ -109,6 +121,7 @@ public class BeakerCodeCell {
         jgen.writeStringField("type", "BeakerCodeCell");
         jgen.writeStringField("execution_count", value.executionCount);
         jgen.writeStringField("cell_type", value.cellType);
+        jgen.writeStringField("cell_id", value.cellId);
         jgen.writeFieldName("outputs");
         if (!getObjectSerializer().writeObject(value.outputs, jgen, true))
           jgen.writeString(value.outputs.toString());
@@ -134,26 +147,22 @@ public class BeakerCodeCell {
     public Object deserialize(JsonNode n, ObjectMapper mapper) {
       BeakerCodeCell o = null;
       try {
-        String executionCount=null, cellType=null, source=null;
-        Object outputs=null;
-        Object metadata=null;
-        if (n.has("execution_count"))
-          executionCount = n.get("execution_count").asText();
-        if (n.has("cell_type"))
-          cellType = n.get("cell_type").asText();
-        if (n.has("source"))
-          source = n.get("source").asText();
-        if (n.has("outputs"))
-          outputs = parent.deserialize(n.get("outputs"), mapper);
-        if (n.has("metadata"))
-          metadata = parent.deserialize(n.get("metadata"), mapper);
-
+        
         o = new BeakerCodeCell();
-        o.setExecutionCount(executionCount);
-        o.setCellType(cellType);
-        o.setSource(source);
-        o.setOutputs(outputs);
-        o.setMetadata(metadata);
+
+        if (n.has("execution_count"))
+          o.setExecutionCount(n.get("execution_count").asText());
+        if (n.has("cell_type"))
+          o.setCellType( n.get("cell_type").asText());
+        if (n.has("source"))
+          o.setSource( n.get("source").asText());
+        if (n.has("cell_id"))
+          o.setCellId( n.get("cell_id").asText());
+        if (n.has("outputs"))
+          o.setOutputs( parent.deserialize(n.get("outputs"), mapper));
+        if (n.has("metadata"))
+          o.setMetadata( parent.deserialize(n.get("metadata"), mapper));
+
       } catch (Exception e) {
         logger.error("exception deserializing BeakerCodeCell ", e);
         e.printStackTrace();

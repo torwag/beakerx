@@ -31,17 +31,25 @@ import java.util.List;
 
 import static com.twosigma.jupyter.handler.KernelHandlerWrapper.wrapBusyIdle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class GetCodeCellsHandler extends BaseHandler<Object> {
+  
+  private static final Logger logger = LoggerFactory.getLogger(GetCodeCellsHandler.class);
 
   private static final String GET_CODE_CELLS = "code_cells";
   private ObjectMapper objectMapper;
   private BeakerObjectConverter objectSerializer;
+  private String messageQueueChanel;
 
-  public GetCodeCellsHandler(KernelFunctionality kernel) {
+  public GetCodeCellsHandler(KernelFunctionality kernel, String messageQueueChanel) {
     super(kernel);
     objectMapper = new ObjectMapper();
     objectSerializer = new BasicObjectSerializer();
+    this.messageQueueChanel = messageQueueChanel;
+    logger.info("NamespaceClient channel = " + messageQueueChanel);
   }
 
   @Override
@@ -54,7 +62,8 @@ public class GetCodeCellsHandler extends BaseHandler<Object> {
   private void handleMsg(Message message) {
     try {
       List<BeakerCodeCell> cells = getBeakerCodeCells(getValueFromData(message, getHandlerCommand()));
-      NamespaceClient.getMessageQueue("CodeCells").put(cells);
+      NamespaceClient.getMessageQueue(messageQueueChanel).put(cells);
+      logger.info("NamespaceClient channel put = " + messageQueueChanel);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }

@@ -36,6 +36,9 @@ import java.util.concurrent.SynchronousQueue;
 
 public class NamespaceClient {
   
+  public static final String MESSAGE_POOL_CODE_CELLS = "CodeCells";
+  public static final String MESSAGE_POOL_RUN_BY_TAG = "RunByTag";
+  
   private static Map<String,NamespaceClient> nsClients = new ConcurrentHashMap<>();
   private static String currentSession;
   private static Map<String, SynchronousQueue<Object>> messagePool = new HashMap<>();
@@ -161,16 +164,33 @@ public class NamespaceClient {
     c.setData(data);
     c.send();
     // block
-    Object cells = getMessageQueue("CodeCells").take();
+    Object cells = getMessageQueue(MESSAGE_POOL_CODE_CELLS).take();
     return (List<BeakerCodeCell>)cells;
   }
 
-  public synchronized void runByTag(String tag) {
+  
+  protected void runByTagCommon(String tag, boolean getReslult) {
     Comm c = getTagRunComm();
     HashMap<String, Serializable> data = new HashMap<>();
     data.put("runByTag", tag);
+    if(getReslult){
+      data.put("getResult", getReslult);
+    }
     c.setData(data);
     c.send();
+  }
+  
+  public void runByTag(String tag) {
+    runByTagCommon(tag, false);
+  }
+  
+  public List<BeakerCodeCell> runByTag(String tag, boolean getResult) throws InterruptedException {
+    List<BeakerCodeCell> ret = null;
+    runByTagCommon(tag, true);
+    if(getResult){
+      ret = (List<BeakerCodeCell>)getMessageQueue(MESSAGE_POOL_RUN_BY_TAG).take();
+    }
+    return ret;
   }
   
   private class ObjectHolder<T>{

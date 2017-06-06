@@ -70,11 +70,43 @@ define([
   var config = new configmod.ConfigSection('notebook', {base_url: base_url});
   var comm;
   var kernel_info = undefined;
+  var tag_run_result = {};
+
   
   config.loaded.then(function() {
     console.log('beaker extension loaded');
   });
 
+  
+  Jupyter.notebook.events.on('finished_execute.CodeCell', function(event, cell) {
+    if(cell.cell._metadata != undefined && cell.cell._metadata.tags != undefined){
+      cell.cell._metadata.tags.forEach(function(item, i, arr) {
+        if(tag_run_result != undefined && tag_run_result[item] != undefined){
+          tag_run_result[item][cell.cell.cell_id] = cell.cell.cell_id;
+          
+          var notify = false;
+          for ( var prop in tag_run_result[item]) {
+            notify = tag_run_result[item][prop] != null;
+            if (!notify) {
+              break;
+            }
+          }
+          
+          if (notify) {
+            runTagResultCallBack(item);
+          }
+          
+        }
+      });
+    }
+  });
+  
+
+  var runTagResultCallBack = function(tagName) {
+    sendJupyterCodeCells(tagName, "beaker.tag.run");
+  };
+  
+  
   Jupyter.notebook.events.on('kernel_ready.Kernel', function() {
     var kernel = Jupyter.notebook.kernel;
     if (!window.beaker) {
@@ -84,7 +116,7 @@ define([
       function(comm, msg) {
         comm.on_msg(function(msg) {
           if(msg.content.data.name == "CodeCells"){
-            sendJupyterCodeCells(JSON.parse(msg.content.data.value));
+            sendJupyterCodeCells(JSON.parse(msg.content.data.value), "beaker.getcodecells");
           }
           window.beaker[msg.content.data.name] = JSON.parse(msg.content.data.value);
         });
@@ -99,16 +131,28 @@ define([
         function(comm, msg) {
           comm.on_msg(function(msg) {
             if(msg.content.data.runByTag != undefined){
+              
+              if(msg.content.data.getResult != undefined){
+                tag_run_result[msg.content.data.runByTag] = {};
+              }
+              
               var notebook = Jupyter.notebook;
-            	var cells = Jupyter.notebook.get_cells();
+              var cells = Jupyter.notebook.get_cells();
               var indexList = cells.reduce(function(acc, cell, index) {
                 if (cell._metadata.tags && cell._metadata.tags.includes(msg.content.data.runByTag)) {
                   acc.push(index);
+                  if(msg.content.data.getResult != undefined){
+                    tag_run_result[msg.content.data.runByTag][cell.cell_id] = null;
+                  }
                 }
                 return acc;
               }, []);
 
+              if(msg.content.data.getResult != undefined){
+                console.log("collecting results for TAG = " + msg.content.data.runByTag + " Cells number is " + indexList.length);
+              }
               notebook.execute_cells(indexList);
+              
             }
           	
           });
@@ -121,8 +165,8 @@ define([
     interrupt();
   });
 
-  function sendJupyterCodeCells(filter) {
-    var comm = Jupyter.notebook.kernel.comm_manager.new_comm("beaker.getcodecells",
+  function sendJupyterCodeCells(filter, comm_name) {
+    var comm = Jupyter.notebook.kernel.comm_manager.new_comm(comm_name,
         null, null, null, utils.uuid());
     var data = {};
     data.code_cells = Jupyter.notebook.get_cells().filter(function (cell) {
