@@ -574,6 +574,7 @@ public class TableDisplay extends BeakerxWidget {
     params.add(row);
     params.add(column);
     fireDoubleClick(params);
+    sendModel();
   }
 
   /**
@@ -629,6 +630,7 @@ public class TableDisplay extends BeakerxWidget {
     params.add(row);
     params.add(column);
     fireContextMenuClick(menuKey, params);
+    sendModel();
   }
 
   public String getDoubleClickTag() {
