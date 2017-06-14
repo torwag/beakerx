@@ -23,6 +23,7 @@ import com.twosigma.beaker.jupyter.msg.JupyterMessages;
 import com.twosigma.beaker.jupyter.msg.MessageCreator;
 import com.twosigma.beaker.jupyter.threads.ExecutionResultSender;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
+import com.twosigma.jupyter.Classpath;
 import com.twosigma.jupyter.KernelParameters;
 import com.twosigma.jupyter.KernelFunctionality;
 import com.twosigma.jupyter.PathToJar;
@@ -46,7 +47,7 @@ public class KernelTest implements KernelFunctionality {
   private KernelParameters setShellOptions;
   private EvaluatorManager evaluatorManager;
   private MessageCreator messageCreator;
-  private List<PathToJar> classPath = new ArrayList<>();
+  private Classpath classPath = new Classpath();
 
   public KernelTest() {
     this("KernelTestId1");
@@ -120,9 +121,9 @@ public class KernelTest implements KernelFunctionality {
   public void addJarToClasspath(PathToJar path) {
     this.classPath.add(path);
   }
-
-  public List<PathToJar> getClassPath() {
-    return classPath;
+  @Override
+  public Classpath getClasspath() {
+    return this.classPath;
   }
 
   public Boolean isSetShellOptions() {

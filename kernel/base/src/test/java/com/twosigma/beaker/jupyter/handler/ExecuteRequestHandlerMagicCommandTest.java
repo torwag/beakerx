@@ -32,17 +32,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ExecuteRequestHandlerMagicCommandTest {
 
-  private static KernelTest kernel;
+  private KernelTest kernel;
+  private EvaluatorTest evaluator;
   private ExecuteRequestHandler executeRequestHandler;
-
-
-  @BeforeClass
-  public static void setUpClass(){
-    kernel = new KernelTest("sid", new EvaluatorTest());
-  }
 
   @Before
   public void setUp() {
+    evaluator = new EvaluatorTest();
+    kernel = new KernelTest("sid", evaluator);
     executeRequestHandler = new ExecuteRequestHandler(kernel);
   }
 

@@ -25,6 +25,7 @@ import com.twosigma.beaker.evaluator.Evaluator;
 import com.twosigma.beaker.evaluator.InternalVariable;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 import com.twosigma.beaker.jvm.threads.BeakerCellExecutor;
+import com.twosigma.jupyter.Classpath;
 import com.twosigma.jupyter.KernelParameters;
 import com.twosigma.jupyter.PathToJar;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -79,6 +80,7 @@ public class CppEvaluator implements Evaluator {
   private final ConcurrentLinkedQueue<jobDescriptor> jobQueue = new ConcurrentLinkedQueue<jobDescriptor>();
 
   private HashSet<String> loadedCells;
+  private Classpath classpath = new Classpath();
 
   public CppEvaluator(String id, String sId) {
     shellId = id;
@@ -137,6 +139,11 @@ public class CppEvaluator implements Evaluator {
   @Override
   public void addJarToClasspath(PathToJar path) {
     //no implementation
+  }
+
+  @Override
+  public Classpath getClasspath() {
+    return this.classpath;
   }
 
   @Override

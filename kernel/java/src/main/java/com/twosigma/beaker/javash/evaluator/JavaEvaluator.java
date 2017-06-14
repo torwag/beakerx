@@ -24,6 +24,7 @@ import com.twosigma.beaker.javash.autocomplete.JavaAutocomplete;
 import com.twosigma.beaker.jvm.classloader.DynamicClassLoaderSimple;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 import com.twosigma.beaker.jvm.threads.BeakerCellExecutor;
+import com.twosigma.jupyter.Classpath;
 import com.twosigma.jupyter.KernelParameters;
 import com.twosigma.jupyter.PathToJar;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +54,7 @@ public class JavaEvaluator implements Evaluator{
   protected final String shellId;
   protected final String sessionId;
   protected final String packageId;
-  protected List<String> classPath;
+  protected Classpath classPath;
   protected List<String> imports;
   protected String outDir;
   protected ClasspathScanner cps;
@@ -82,7 +83,7 @@ public class JavaEvaluator implements Evaluator{
     packageId = "com.twosigma.beaker.javash.bkr"+shellId.split("-")[0];
     cps = new ClasspathScanner();
     jac = createJavaAutocomplete(cps);
-    classPath = new ArrayList<String>();
+    classPath = new Classpath();
     imports = new ArrayList<String>();
     exit = false;
     updateLoader = false;
@@ -115,7 +116,7 @@ public class JavaEvaluator implements Evaluator{
     executor.killAllThreads();
    
     String cpp = "";
-    for(String pt : classPath) {
+    for(String pt : classPath.getPathsAsStrings()) {
       cpp += pt;
       cpp += File.pathSeparator;
     }
@@ -142,7 +143,6 @@ public class JavaEvaluator implements Evaluator{
     syncObject.release();
   }
 
-  
   @Override
   public void setShellOptions(final KernelParameters kernelParameters) throws IOException {
     
@@ -153,7 +153,7 @@ public class JavaEvaluator implements Evaluator{
     Map<String, String> env = System.getenv();
 
     if (listOfClassPath == null || listOfClassPath.isEmpty()){
-      classPath = new ArrayList<>();
+      classPath = new Classpath();
     } else {
       for (String line : listOfClassPath) {
         if (!line.trim().isEmpty()) {
@@ -176,15 +176,15 @@ public class JavaEvaluator implements Evaluator{
   }
 
   @Override
+  public Classpath getClasspath() {
+    return this.classPath;
+  }
+
+  @Override
   public void addJarToClasspath(PathToJar path) {
-    addJar(path);
+    classPath.add(path);
     resetEnvironment();
   }
-
-  private void addJar(PathToJar path) {
-    classPath.add(path.getPath());
-  }
-
 
   @Override
   public void evaluate(SimpleEvaluationObject seo, String code) {
@@ -255,7 +255,7 @@ public class JavaEvaluator implements Evaluator{
           // check if we must create or update class loader
           if (loader==null || updateLoader) {
             loader=new DynamicClassLoaderSimple(ClassLoader.getSystemClassLoader());
-            loader.addJars(classPath);
+            loader.addJars(classPath.getPathsAsStrings());
             loader.addDynamicDir(outDir);
           }
           
@@ -281,7 +281,7 @@ public class JavaEvaluator implements Evaluator{
           if (classpathEntries!=null && classpathEntries.length>0)
             compilationUnit.addClassPathEntries(Arrays.asList(classpathEntries));
           if (!classPath.isEmpty())
-            compilationUnit.addClassPathEntries(classPath);
+            compilationUnit.addClassPathEntries(classPath.getPathsAsStrings());
           compilationUnit.addClassPathEntry(outDir);
         
           // normalize and analyze code

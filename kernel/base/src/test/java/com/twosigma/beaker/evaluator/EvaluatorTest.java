@@ -18,6 +18,7 @@ package com.twosigma.beaker.evaluator;
 
 import com.twosigma.beaker.autocomplete.AutocompleteResult;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
+import com.twosigma.jupyter.Classpath;
 import com.twosigma.jupyter.KernelParameters;
 import com.twosigma.jupyter.PathToJar;
 
@@ -67,6 +68,14 @@ public class EvaluatorTest implements Evaluator {
   @Override
   public void exit() {
     exit = true;
+  }
+
+  @Override
+  public Classpath getClasspath() {
+    Classpath classpath = new Classpath();
+    classpath.add(new PathToJar("classpath1"));
+    classpath.add(new PathToJar("classpath2"));
+    return classpath;
   }
 
   public SimpleEvaluationObject getSeo() {

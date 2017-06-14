@@ -24,6 +24,7 @@ import com.twosigma.beaker.evaluator.InternalVariable;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 import com.twosigma.beaker.jvm.threads.BeakerCellExecutor;
 import com.twosigma.beaker.sql.autocomplete.SQLAutocomplete;
+import com.twosigma.jupyter.Classpath;
 import com.twosigma.jupyter.KernelParameters;
 import com.twosigma.jupyter.PathToJar;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ public class SQLEvaluator implements Evaluator {
   private final String sessionId;
   private final String packageId;
 
-  private List<String> classPath = new ArrayList<>();
+  private Classpath classPath = new Classpath();
   private Map<String, ConnectionStringHolder> namedConnectionString = new HashMap<>();
   private ConnectionStringHolder defaultConnectionString;
 
@@ -102,7 +103,7 @@ public class SQLEvaluator implements Evaluator {
   }
 
   private void resetEnvironment() {
-    jdbcClient.loadDrivers(classPath);
+    jdbcClient.loadDrivers(classPath.getPathsAsStrings());
     sac = createSqlAutocomplete(cps);
     killAllThreads();
   }
@@ -222,7 +223,7 @@ public class SQLEvaluator implements Evaluator {
     Collection<String> cp = params.getClassPath();
 
     if (cp == null || cp.isEmpty()) {
-      classPath = new ArrayList<>();
+      classPath = new Classpath();
     } else {
       for (String line : cp) {
         if (!line.trim().isEmpty()) {
@@ -231,7 +232,7 @@ public class SQLEvaluator implements Evaluator {
       }
     }
 
-    jdbcClient.loadDrivers(classPath);
+    jdbcClient.loadDrivers(classPath.getPathsAsStrings());
 
     this.defaultConnectionString = new ConnectionStringHolder(params.defaultDatasource().orElse(""), jdbcClient);
     this.namedConnectionString = new HashMap<>();
@@ -255,13 +256,14 @@ public class SQLEvaluator implements Evaluator {
   }
 
   @Override
-  public void addJarToClasspath(PathToJar path) {
-    addJar(path);
-    resetEnvironment();
+  public Classpath getClasspath() {
+    return this.classPath;
   }
 
-  private void addJar(PathToJar path) {
-    classPath.add(path.getPath());
+  @Override
+  public void addJarToClasspath(PathToJar path) {
+    classPath.add(path);
+    resetEnvironment();
   }
 
   public void setShellUserPassword(String namedConnection, String user, String password) {

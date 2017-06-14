@@ -26,6 +26,7 @@ import com.twosigma.beaker.evaluator.InternalVariable;
 import com.twosigma.beaker.jvm.classloader.DynamicClassLoaderSimple;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 import com.twosigma.beaker.jvm.threads.BeakerCellExecutor;
+import com.twosigma.jupyter.Classpath;
 import com.twosigma.jupyter.KernelParameters;
 import com.twosigma.jupyter.PathToJar;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class ClojureEvaluator implements Evaluator {
 
   private final String shellId;
   private final String sessionId;
-  private List<String> classPath;
+  private Classpath classPath;
   private List<String> imports;
   private List<String> requirements;
   private boolean exit;
@@ -87,7 +88,7 @@ public class ClojureEvaluator implements Evaluator {
   public ClojureEvaluator(String id, String sId) {
     shellId = id;
     sessionId = sId;
-    classPath = new ArrayList<String>();
+    classPath = new Classpath();
     imports = new ArrayList<String>();
     requirements = new ArrayList<>();
     outDir = Evaluator.createJupyterTempFolder().toString();
@@ -97,7 +98,7 @@ public class ClojureEvaluator implements Evaluator {
   private void init() {
 
     loader = new DynamicClassLoaderSimple(ClassLoader.getSystemClassLoader());
-    loader.addJars(classPath);
+    loader.addJars(classPath.getPathsAsStrings());
     loader.addDynamicDir(outDir);
 
     String loadFunctionPrefix = "run_str";
@@ -138,7 +139,7 @@ public class ClojureEvaluator implements Evaluator {
     executor.killAllThreads();
 
     loader = new DynamicClassLoaderSimple(ClassLoader.getSystemClassLoader());
-    loader.addJars(classPath);
+    loader.addJars(classPath.getPathsAsStrings());
     loader.addDynamicDir(outDir);
 
     ClassLoader oldLoader = Thread.currentThread().getContextClassLoader();
@@ -172,6 +173,11 @@ public class ClojureEvaluator implements Evaluator {
     exit = true;
     cancelExecution();
     syncObject.release();
+  }
+
+  @Override
+  public Classpath getClasspath() {
+    return this.classPath;
   }
 
   public void evaluate(SimpleEvaluationObject seo, String code) {
@@ -279,7 +285,7 @@ public class ClojureEvaluator implements Evaluator {
     Map<String, String> env = System.getenv();
 
     if (listOfClassPath == null || listOfClassPath.isEmpty()) {
-      classPath = new ArrayList<>();
+      classPath = new Classpath();
     } else {
       for (String line : listOfClassPath) {
         if (!line.trim().isEmpty()) {
@@ -308,7 +314,7 @@ public class ClojureEvaluator implements Evaluator {
   }
 
   private void addJar(PathToJar path) {
-    classPath.add(path.getPath());
+    classPath.add(path);
   }
 
   public AutocompleteResult autocomplete(String code, int caretPosition) {

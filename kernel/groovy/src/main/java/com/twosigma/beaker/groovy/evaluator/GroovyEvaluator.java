@@ -24,6 +24,7 @@ import com.twosigma.beaker.groovy.autocomplete.GroovyClasspathScanner;
 import com.twosigma.beaker.jvm.classloader.DynamicClassLoaderSimple;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 import com.twosigma.beaker.jvm.threads.BeakerCellExecutor;
+import com.twosigma.jupyter.Classpath;
 import com.twosigma.jupyter.KernelParameters;
 import com.twosigma.jupyter.PathToJar;
 import groovy.lang.Binding;
@@ -64,7 +65,7 @@ public class GroovyEvaluator implements Evaluator {
 
   protected final String shellId;
   protected final String sessionId;
-  protected List<String> classPath;
+  protected Classpath classPath;
   protected List<String> imports;
   //user entered source value
   protected String outDir;
@@ -101,7 +102,7 @@ public class GroovyEvaluator implements Evaluator {
   public GroovyEvaluator(String id, String sId) {
     shellId = id;
     sessionId = sId;
-    classPath = new ArrayList<>();
+    classPath = new Classpath();
     imports = new ArrayList<>();
     cps = new GroovyClasspathScanner();
     gac = createGroovyAutocomplete(cps);
@@ -138,7 +139,7 @@ public class GroovyEvaluator implements Evaluator {
     executor.killAllThreads();
 
     String cpp = "";
-    for (String pt : classPath) {
+    for (String pt : classPath.getPathsAsStrings()) {
       cpp += pt;
       cpp += File.pathSeparator;
     }
@@ -161,6 +162,11 @@ public class GroovyEvaluator implements Evaluator {
   }
 
   @Override
+  public Classpath getClasspath() {
+    return this.classPath;
+  }
+
+  @Override
   public void setShellOptions(final KernelParameters kernelParameters) throws IOException {
 
     Map<String, Object> params = kernelParameters.getParams();
@@ -168,7 +174,7 @@ public class GroovyEvaluator implements Evaluator {
     Collection<String> listOfImports = (Collection<String>) params.get(IMPORTS);
 
     if (listOfClassPath == null || listOfClassPath.isEmpty()) {
-      classPath = new ArrayList<>();
+      classPath = new Classpath();
     } else {
       for (String line : listOfClassPath) {
         if (!line.trim().isEmpty()) {
@@ -196,13 +202,13 @@ public class GroovyEvaluator implements Evaluator {
     resetEnvironment();
   }
 
-  private void addJar(PathToJar path) {
-    classPath.add(envVariablesFilter(path.getPath(), System.getenv()));
+  private boolean addJar(PathToJar path) {
+    return classPath.add(new PathToJar(envVariablesFilter(path.getPath(), System.getenv())));
   }
 
   protected ClassLoader newClassLoader() throws MalformedURLException {
     loader = new DynamicClassLoaderSimple(ClassLoader.getSystemClassLoader());
-    loader.addJars(classPath);
+    loader.addJars(classPath.getPathsAsStrings());
     loader.addDynamicDir(outDir);
     return loader;
   }
