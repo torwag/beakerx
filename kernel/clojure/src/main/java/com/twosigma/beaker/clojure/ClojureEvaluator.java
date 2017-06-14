@@ -289,7 +289,7 @@ public class ClojureEvaluator extends BaseEvaluator {
     } else {
       for (String line : listOfClassPath) {
         if (!line.trim().isEmpty()) {
-          addJarToClasspath(new PathToJar(line));
+          addJar(new PathToJar(line));
         }
       }
     }
