@@ -19,7 +19,7 @@ package com.twosigma.beaker.sql;
 import com.twosigma.beaker.NamespaceClient;
 import com.twosigma.beaker.autocomplete.AutocompleteResult;
 import com.twosigma.beaker.autocomplete.ClasspathScanner;
-import com.twosigma.beaker.evaluator.Evaluator;
+import com.twosigma.beaker.evaluator.BaseEvaluator;
 import com.twosigma.beaker.evaluator.InternalVariable;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 import com.twosigma.beaker.jvm.threads.BeakerCellExecutor;
@@ -42,7 +42,7 @@ import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Semaphore;
 
-public class SQLEvaluator implements Evaluator {
+public class SQLEvaluator extends BaseEvaluator {
 
   private final static Logger logger = LoggerFactory.getLogger(SQLEvaluator.class.getName());
 
@@ -102,7 +102,7 @@ public class SQLEvaluator implements Evaluator {
     executor.killAllThreads();
   }
 
-  private void resetEnvironment() {
+  public void resetEnvironment() {
     jdbcClient.loadDrivers(classPath.getPathsAsStrings());
     sac = createSqlAutocomplete(cps);
     killAllThreads();
@@ -227,7 +227,7 @@ public class SQLEvaluator implements Evaluator {
     } else {
       for (String line : cp) {
         if (!line.trim().isEmpty()) {
-          addJarToClasspath(new PathToJar(line));
+          addJar(new PathToJar(line));
         }
       }
     }
@@ -261,9 +261,8 @@ public class SQLEvaluator implements Evaluator {
   }
 
   @Override
-  public void addJarToClasspath(PathToJar path) {
-    classPath.add(path);
-    resetEnvironment();
+  protected boolean addJar(PathToJar path) {
+    return classPath.add(path);
   }
 
   public void setShellUserPassword(String namedConnection, String user, String password) {

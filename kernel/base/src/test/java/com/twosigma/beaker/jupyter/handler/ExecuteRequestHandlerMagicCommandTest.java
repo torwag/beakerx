@@ -23,7 +23,6 @@ import com.twosigma.jupyter.Code;
 import com.twosigma.jupyter.message.Message;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.List;
@@ -76,6 +75,19 @@ public class ExecuteRequestHandlerMagicCommandTest {
     //then
     final List<Message> publishedMessages = kernel.getPublishedMessages();
     assertThat(publishedMessages.size()).isEqualTo(3);
+  }
+
+  @Test
+  public void noResetEnvironmentForDuplicatedPath() throws Exception {
+    //when
+    String code = "" +
+            "%classpath add jar BeakerXClasspathTest.jar\n" +
+            "%classpath add jar BeakerXClasspathTest.jar\n" +
+            "%classpath add jar BeakerXClasspathTest.jar\n";
+    Message magicMessage = JupyterHandlerTest.createExecuteRequestMessage(new Code(code));
+    executeRequestHandler.handle(magicMessage);
+    //then
+    assertThat(evaluator.getResetEnvironmentCounter()).isEqualTo(1);
   }
 
   @Test

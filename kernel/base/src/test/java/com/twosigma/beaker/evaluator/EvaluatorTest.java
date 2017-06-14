@@ -25,23 +25,20 @@ import com.twosigma.jupyter.PathToJar;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class EvaluatorTest implements Evaluator {
+public class EvaluatorTest extends BaseEvaluator {
 
-  KernelParameters kernelParameters;
-  SimpleEvaluationObject seo;
-  String code;
-  boolean killAllThreads;
-  boolean startWorker;
-  boolean exit;
+  private KernelParameters kernelParameters;
+  private SimpleEvaluationObject seo;
+  private String code;
+  private boolean killAllThreads;
+  private boolean startWorker;
+  private boolean exit;
+  private Classpath classpath = new Classpath();
+  private int resetEnvironmentCounter = 0;
 
   @Override
   public void setShellOptions(KernelParameters kernelParameters) throws IOException {
     this.kernelParameters = kernelParameters;
-  }
-
-  @Override
-  public void addJarToClasspath(PathToJar path) {
-
   }
 
   @Override
@@ -72,10 +69,12 @@ public class EvaluatorTest implements Evaluator {
 
   @Override
   public Classpath getClasspath() {
-    Classpath classpath = new Classpath();
-    classpath.add(new PathToJar("classpath1"));
-    classpath.add(new PathToJar("classpath2"));
-    return classpath;
+    return this.classpath;
+  }
+
+  @Override
+  public void resetEnvironment() {
+    this.resetEnvironmentCounter++;
   }
 
   public SimpleEvaluationObject getSeo() {
@@ -102,4 +101,12 @@ public class EvaluatorTest implements Evaluator {
     return exit;
   }
 
+  @Override
+  protected boolean addJar(PathToJar path) {
+    return classpath.add(path);
+  }
+
+  public int getResetEnvironmentCounter() {
+    return resetEnvironmentCounter;
+  }
 }

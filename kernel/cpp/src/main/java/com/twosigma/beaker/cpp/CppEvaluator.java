@@ -21,7 +21,7 @@ import com.twosigma.beaker.cpp.autocomplete.CPP14Lexer;
 import com.twosigma.beaker.cpp.autocomplete.CPP14Parser;
 import com.twosigma.beaker.cpp.utils.CellGobblerManager;
 import com.twosigma.beaker.cpp.utils.TempCppFiles;
-import com.twosigma.beaker.evaluator.Evaluator;
+import com.twosigma.beaker.evaluator.BaseEvaluator;
 import com.twosigma.beaker.evaluator.InternalVariable;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 import com.twosigma.beaker.jvm.threads.BeakerCellExecutor;
@@ -61,7 +61,7 @@ import java.util.concurrent.Semaphore;
 import static com.twosigma.beaker.cpp.utils.CLangCommand.compileCommand;
 import static com.twosigma.beaker.jupyter.Utils.uuid;
 
-public class CppEvaluator implements Evaluator {
+public class CppEvaluator extends BaseEvaluator {
 
   private static final Logger logger = LoggerFactory.getLogger(CppEvaluator.class.getName());
 
@@ -137,8 +137,8 @@ public class CppEvaluator implements Evaluator {
   }
 
   @Override
-  public void addJarToClasspath(PathToJar path) {
-    //no implementation
+  protected boolean addJar(PathToJar path) {
+    return false;
   }
 
   @Override

@@ -21,6 +21,7 @@ import clojure.lang.Var;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.twosigma.beaker.autocomplete.AutocompleteResult;
+import com.twosigma.beaker.evaluator.BaseEvaluator;
 import com.twosigma.beaker.evaluator.Evaluator;
 import com.twosigma.beaker.evaluator.InternalVariable;
 import com.twosigma.beaker.jvm.classloader.DynamicClassLoaderSimple;
@@ -48,7 +49,7 @@ import java.util.concurrent.Semaphore;
 import static com.twosigma.beaker.jupyter.comm.KernelControlSetShellHandler.CLASSPATH;
 import static com.twosigma.beaker.jupyter.comm.KernelControlSetShellHandler.IMPORTS;
 
-public class ClojureEvaluator implements Evaluator {
+public class ClojureEvaluator extends BaseEvaluator {
 
   private final static Logger logger = LoggerFactory.getLogger(ClojureEvaluator.class.getName());
 
@@ -274,7 +275,6 @@ public class ClojureEvaluator implements Evaluator {
     }
   }
 
-
   @Override
   public void setShellOptions(final KernelParameters kernelParameters) throws IOException {
 
@@ -308,13 +308,8 @@ public class ClojureEvaluator implements Evaluator {
   }
 
   @Override
-  public void addJarToClasspath(PathToJar path) {
-    addJar(path);
-    resetEnvironment();
-  }
-
-  private void addJar(PathToJar path) {
-    classPath.add(path);
+  protected boolean addJar(PathToJar path) {
+    return classPath.add(path);
   }
 
   public AutocompleteResult autocomplete(String code, int caretPosition) {

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.twosigma.beaker.autocomplete.AutocompleteResult;
+import com.twosigma.beaker.evaluator.BaseEvaluator;
 import com.twosigma.beaker.evaluator.Evaluator;
 import com.twosigma.beaker.evaluator.InternalVariable;
 import com.twosigma.beaker.NamespaceClient;
@@ -64,7 +65,7 @@ import java.util.concurrent.Semaphore;
 import static com.twosigma.beaker.jupyter.comm.KernelControlSetShellHandler.CLASSPATH;
 import static com.twosigma.beaker.jupyter.comm.KernelControlSetShellHandler.IMPORTS;
 
-public class ScalaEvaluator implements Evaluator {
+public class ScalaEvaluator extends BaseEvaluator {
   private final static Logger logger = LoggerFactory.getLogger(ScalaEvaluator.class.getName());
 
   protected String shellId;
@@ -180,7 +181,7 @@ public class ScalaEvaluator implements Evaluator {
     } else {
       for (String line : listOfClassPath) {
         if (!line.trim().isEmpty()) {
-          addJarToClasspath(new PathToJar(line));
+          addJar(new PathToJar(line));
         }
       }
     }
@@ -200,17 +201,12 @@ public class ScalaEvaluator implements Evaluator {
 
   @Override
   public Classpath getClasspath() {
-    return null;
+    return this.classPath;
   }
 
   @Override
-  public void addJarToClasspath(PathToJar path) {
-    addJar(path);
-    resetEnvironment();
-  }
-
-  private void addJar(PathToJar path) {
-    classPath.add(path);
+  protected boolean addJar(PathToJar path) {
+    return classPath.add(path);
   }
 
   @Override

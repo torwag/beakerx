@@ -17,6 +17,7 @@ package com.twosigma.beaker.groovy.evaluator;
 
 import com.twosigma.beaker.NamespaceClient;
 import com.twosigma.beaker.autocomplete.AutocompleteResult;
+import com.twosigma.beaker.evaluator.BaseEvaluator;
 import com.twosigma.beaker.evaluator.Evaluator;
 import com.twosigma.beaker.evaluator.InternalVariable;
 import com.twosigma.beaker.groovy.autocomplete.GroovyAutocomplete;
@@ -56,7 +57,7 @@ import java.util.regex.Pattern;
 import static com.twosigma.beaker.jupyter.comm.KernelControlSetShellHandler.CLASSPATH;
 import static com.twosigma.beaker.jupyter.comm.KernelControlSetShellHandler.IMPORTS;
 
-public class GroovyEvaluator implements Evaluator {
+public class GroovyEvaluator extends BaseEvaluator {
 
   private static final Logger logger = LoggerFactory.getLogger(GroovyEvaluator.class.getName());
 
@@ -197,12 +198,7 @@ public class GroovyEvaluator implements Evaluator {
   }
 
   @Override
-  public void addJarToClasspath(PathToJar path) {
-    addJar(path);
-    resetEnvironment();
-  }
-
-  private boolean addJar(PathToJar path) {
+  protected boolean addJar(PathToJar path) {
     return classPath.add(new PathToJar(envVariablesFilter(path.getPath(), System.getenv())));
   }
 

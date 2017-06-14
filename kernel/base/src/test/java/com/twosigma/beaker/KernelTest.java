@@ -47,7 +47,6 @@ public class KernelTest implements KernelFunctionality {
   private KernelParameters setShellOptions;
   private EvaluatorManager evaluatorManager;
   private MessageCreator messageCreator;
-  private Classpath classPath = new Classpath();
 
   public KernelTest() {
     this("KernelTestId1");
@@ -119,11 +118,12 @@ public class KernelTest implements KernelFunctionality {
 
   @Override
   public void addJarToClasspath(PathToJar path) {
-    this.classPath.add(path);
+    this.evaluatorManager.addJarToClasspath(path);
   }
+
   @Override
   public Classpath getClasspath() {
-    return this.classPath;
+    return this.evaluatorManager.getClasspath();
   }
 
   public Boolean isSetShellOptions() {

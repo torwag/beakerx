@@ -16,6 +16,7 @@
 package com.twosigma.beaker.jupyter.commands;
 
 import com.twosigma.beaker.KernelTest;
+import com.twosigma.beaker.evaluator.EvaluatorTest;
 import com.twosigma.beaker.mimetype.MIMEContainer;
 import com.twosigma.jupyter.Code;
 import com.twosigma.jupyter.PathToJar;
@@ -36,7 +37,7 @@ public class ClasspathMagicCommandTest {
 
   @Before
   public void setUp() throws Exception {
-    this.kernel = new KernelTest();
+    this.kernel = new KernelTest("id2", new EvaluatorTest());
     this.sut = new MagicCommand(kernel);
   }
 

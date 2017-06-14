@@ -29,7 +29,7 @@ import com.twosigma.beaker.autocomplete.AutocompleteResult;
 import com.twosigma.beaker.jvm.object.SimpleEvaluationObject;
 
 public interface Evaluator {
-  
+
   String BEAKER_VARIABLE_NAME = "beakerx";
 
   Logger logger = LoggerFactory.getLogger(Evaluator.class.getName());
@@ -59,4 +59,6 @@ public interface Evaluator {
   }
 
   Classpath getClasspath();
+
+  void resetEnvironment();
 }
