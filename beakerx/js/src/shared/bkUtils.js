@@ -34,6 +34,13 @@ define([
       }
       return text;
     },
+    guidGenerator: function (length) {
+      if (_.isUndefined(length)) {
+        length = 10;
+      }
+      var prefix = 'bekaerx-';
+      return prefix + Math.random().toString(36).substr(2, length);
+    },
     applyTimezone: function(timestamp, tz) {
       return commonUtils.applyTimezone(timestamp, tz);
     },
