@@ -18,17 +18,25 @@ package com.twosigma.beakerx.scala.kernel;
 import com.twosigma.beakerx.DefaultJVMVariables;
 
 /**
- * 
  * @author konst
- *
  */
 public class ScalaDefaultVariables extends DefaultJVMVariables {
 
-    public ScalaDefaultVariables() {
-      addImports("com.twosigma.beakerx.scala.chart.xychart._",
-          "com.twosigma.beakerx.scala.chart.xychart.plotitem._",
-          "com.twosigma.beakerx.scala.easyform.EasyForm",
-          "com.twosigma.beakerx.scala.table._",
-          "com.twosigma.beakerx.scala.fileloader._");
-    }
+  public ScalaDefaultVariables() {
+    removeImports("com.twosigma.beakerx.easyform.EasyForm",
+        "com.twosigma.beakerx.chart.xychart.*",
+        "com.twosigma.beakerx.chart.xychart.plotitem.*",
+        "com.twosigma.beakerx.table.*"
+    );
+
+    addImports("com.twosigma.beakerx.scala.chart.xychart._",
+        "com.twosigma.beakerx.scala.chart.xychart.plotitem._",
+        "com.twosigma.beakerx.scala.easyform.EasyForm",
+        "com.twosigma.beakerx.easyform.formitem._",
+        "com.twosigma.beakerx.scala.table._",
+        "com.twosigma.beakerx.scala.fileloader._");
+
+  }
+
+
 }

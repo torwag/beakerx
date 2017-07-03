@@ -17,8 +17,7 @@
 package com.twosigma.beakerx.scala.easyform
 
 import com.twosigma.beakerx.easyform.EasyFormComponent
-import com.twosigma.beakerx.easyform.formitem.ButtonComponent
-import com.twosigma.beakerx.widgets.{DOMWidget, DisplayableWidget}
+import com.twosigma.beakerx.widgets.DOMWidget
 
 import scala.collection.JavaConverters._
 

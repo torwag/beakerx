@@ -14,7 +14,9 @@
  *  limitations under the License.
  */
 
-package com.twosigma.beakerx.scala.evaluator;
+package com.twosigma.beakerx.scala.evaluator
+
+;
 
 import com.twosigma.beakerx.autocomplete.AutocompleteResult
 import com.twosigma.beakerx.jvm.`object`.SimpleEvaluationObject
@@ -30,8 +32,8 @@ case class ResetState(val state: String);
 class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String, val replClassdir: String) {
   val settings = {
     val s = new Settings();
-    s.processArguments(List("-Yrepl-class-based",
-        "-Yrepl-outdir", replClassdir), true)
+    s.processArguments(List("-Xexperimental", "-Yrepl-class-based",
+      "-Yrepl-outdir", replClassdir), true)
     s.bootclasspath.value = cp;
     s.classpath.value = cp;
     s.usejavacp.value = true;
@@ -44,17 +46,17 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String, val replClassdir: 
   private def scalaToJline(completion: Completion): Completer =
     (_buf: String, cursor: Int, candidates: JList[CharSequence]) => {
       val buf = if (_buf == null) "" else _buf
-      val Candidates(newCursor, newCandidates) = completion.complete(buf, cursor)
+      val Candidates(newCursor, newCandidates) = completion.completer().complete(buf, cursor)
       newCandidates foreach (candidates add _)
       newCursor
     }
-  
+
   var interpreter = {
     var i = new IMain(settings, new java.io.PrintWriter(baos));
     i.setContextClassLoader();
     i;
   }
-  
+
   val completer = scalaToJline(new PresentationCompilerCompleter(interpreter))
 
   private def getOut: Any = {
@@ -70,11 +72,11 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String, val replClassdir: 
         }
     }
   }
-  
-  def addImport(name : String): Boolean = {
+
+  def addImport(name: String): Boolean = {
     baos.reset();
-      try {
-      interpreter.interpret("import "+name) match {
+    try {
+      interpreter.interpret("import " + name) match {
         case Success => true;
         case _ => false;
       }
@@ -82,7 +84,7 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String, val replClassdir: 
       case ex: Throwable => false;
     }
   }
-  
+
   def evaluate2(code: String): String = {
     baos.reset();
     try {
@@ -95,7 +97,7 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String, val replClassdir: 
       case ex: Throwable => ex.toString();
     }
   }
-  
+
   def evaluate(out: SimpleEvaluationObject, code: String) {
     baos.reset();
     out.setOutputHandler();
@@ -112,9 +114,9 @@ class ScalaEvaluatorGlue(val cl: ClassLoader, var cp: String, val replClassdir: 
     out.clrOutputHandler();
   }
 
-  def autocomplete(buf: String, len : Integer): AutocompleteResult = {
+  def autocomplete(buf: String, len: Integer): AutocompleteResult = {
     val maybes = new java.util.ArrayList[CharSequence];
-    val offset = completer.complete(buf,  len, maybes);
+    val offset = completer.complete(buf, len, maybes);
     // There must be a better way to do this
     import scala.collection.JavaConverters._
     new AutocompleteResult(maybes.asScala.map(_.toString).asJava, offset)
