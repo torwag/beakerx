@@ -18,7 +18,6 @@ package com.twosigma.beakerx.sql;
 import com.twosigma.beakerx.KernelSocketsServiceTest;
 import com.twosigma.beakerx.KernelSocketsTest;
 import com.twosigma.beakerx.evaluator.TestBeakerCellExecutor;
-import com.twosigma.beakerx.kernel.commands.MagicCommand;
 import com.twosigma.beakerx.kernel.msg.JupyterMessages;
 import com.twosigma.beakerx.kernel.KernelParameters;
 import com.twosigma.beakerx.kernel.KernelRunner;
@@ -102,8 +101,8 @@ public class SQLKernelTest {
 
   private KernelParameters kernelParameters() {
     Map<String, Object> params = new HashMap<>();
-    params.put(MagicCommand.DATASOURCES, "chemistry=jdbc:h2:mem:chemistry");
-    params.put(MagicCommand.DEFAULT_DATASOURCE, "jdbc:h2:mem:db1");
+    params.put(SQLEvaluator.DATASOURCES, "chemistry=jdbc:h2:mem:chemistry");
+    params.put(SQLEvaluator.DEFAULT_DATASOURCE, "jdbc:h2:mem:db1");
     return new KernelParameters(params);
   }
 }

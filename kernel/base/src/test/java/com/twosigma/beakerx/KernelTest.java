@@ -218,11 +218,8 @@ public class KernelTest implements KernelFunctionality {
     publish(idleMessage);
   }
 
-  public Optional<String> getDefaultDatasource() {
-    return setShellOptions.getParam(MagicCommand.DEFAULT_DATASOURCE, String.class);
+  public Optional<String> getParam(String param) {
+    return setShellOptions.getParam(param, String.class);
   }
 
-  public Optional<String> getDatasource() {
-    return setShellOptions.getParam(MagicCommand.DATASOURCES, String.class);
-  }
 }

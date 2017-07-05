@@ -23,8 +23,6 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.twosigma.beakerx.DefaultJVMVariables.CLASSPATH;
 import static com.twosigma.beakerx.kernel.Utils.getAsString;
-import static com.twosigma.beakerx.kernel.commands.MagicCommand.DATASOURCES;
-import static com.twosigma.beakerx.kernel.commands.MagicCommand.DEFAULT_DATASOURCE;
 
 public class SQLKernelParameters {
 
@@ -47,12 +45,8 @@ public class SQLKernelParameters {
   }
 
 
-  public Optional<String> defaultDatasource() {
-    return kernelParameters.getParam(DEFAULT_DATASOURCE, String.class);
-  }
-
-  public Optional<String> datasources() {
-    return kernelParameters.getParam(DATASOURCES, String.class);
+  public Optional<String> getParam(String param) {
+    return kernelParameters.getParam(param, String.class);
   }
 
 }

@@ -52,8 +52,7 @@ import java.util.stream.Collectors;
  */
 public class MagicCommand {
 
-  public static final String DEFAULT_DATASOURCE = "%defaultDatasource";
-  public static final String DATASOURCES = "%datasources";
+  public static final String PARAM = "%param";
 
   public static final String JAVASCRIPT = "%%javascript";
   public static final String HTML = "%%html";
@@ -104,26 +103,17 @@ public class MagicCommand {
     commands.put(CLASSPATH_SHOW, classpathShow());
     commands.put(ADD_IMPORT, addImport());
     commands.put(UNIMPORT, unimport());
-    commands.put(DATASOURCES, dataSources());
-    commands.put(DEFAULT_DATASOURCE, defaultDataSources());
+    commands.put(PARAM, param());
   }
 
-  private MagicCommandFunctionality defaultDataSources() {
-    return dataSource(DEFAULT_DATASOURCE);
-  }
-
-  private MagicCommandFunctionality dataSources() {
-    return dataSource(DATASOURCES);
-  }
-
-  private MagicCommandFunctionality dataSource(String source) {
+  private MagicCommandFunctionality param() {
     return (code, command, message, executionCount) -> {
       String[] parts = command.split(" ");
-      if (parts.length != 2) {
+      if (parts.length != 3) {
         throw new RuntimeException("Wrong format.");
       }
       HashMap<String, Object> params = new HashMap<>();
-      params.put(source, parts[1]);
+      params.put(parts[1], parts[2]);
       this.kernel.setShellOptions(new KernelParameters(params));
       return getMagicCommandItem(code, message, executionCount);
     };

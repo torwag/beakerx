@@ -22,8 +22,7 @@ import com.twosigma.beakerx.message.Message;
 import org.junit.Before;
 import org.junit.Test;
 
-import static com.twosigma.beakerx.kernel.commands.MagicCommand.DATASOURCES;
-import static com.twosigma.beakerx.kernel.commands.MagicCommand.DEFAULT_DATASOURCE;
+import static com.twosigma.beakerx.kernel.commands.MagicCommand.PARAM;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SQLMagicCommandTest {
@@ -40,23 +39,12 @@ public class SQLMagicCommandTest {
   @Test
   public void handleDefaultDatasourceMagicCommand() throws Exception {
     //given
-    String codeAsString = DEFAULT_DATASOURCE + " jdbc:h2:mem:db1";
+    String codeAsString = PARAM + " param1"+" jdbc:h2:mem:db1";
     Code code = new Code(codeAsString);
     //when
     sut.process(code, new Message(), 1);
     //then
-    assertThat(kernel.getDefaultDatasource().get()).isEqualTo("jdbc:h2:mem:db1");
-  }
-
-  @Test
-  public void handleDatasourceMagicCommand() throws Exception {
-    //given
-    String codeAsString = DATASOURCES + " jdbc:h2:mem:db2";
-    Code code = new Code(codeAsString);
-    //when
-    sut.process(code, new Message(), 1);
-    //then
-    assertThat(kernel.getDatasource().get()).isEqualTo("jdbc:h2:mem:db2");
+    assertThat(kernel.getParam("param1").get()).isEqualTo("jdbc:h2:mem:db1");
   }
 
 }

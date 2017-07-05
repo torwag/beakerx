@@ -53,6 +53,9 @@ import java.util.concurrent.Semaphore;
 
 public class SQLEvaluator extends BaseEvaluator {
 
+  public static final String DEFAULT_DATASOURCE = "defaultDatasource";
+  public static final String DATASOURCES = "datasources";
+
   private final static Logger logger = LoggerFactory.getLogger(SQLEvaluator.class.getName());
 
   private final String shellId;
@@ -258,12 +261,12 @@ public class SQLEvaluator extends BaseEvaluator {
       jdbcClient.loadDrivers(classPath.getPathsAsStrings());
     }
 
-    if (params.defaultDatasource().isPresent()) {
-      this.defaultConnectionString = new ConnectionStringHolder(params.defaultDatasource().orElse(""), jdbcClient);
+    if (params.getParam(DEFAULT_DATASOURCE).isPresent()) {
+      this.defaultConnectionString = new ConnectionStringHolder(params.getParam(DEFAULT_DATASOURCE).orElse(""), jdbcClient);
     }
-    if (params.datasources().isPresent()) {
+    if (params.getParam(DATASOURCES).isPresent()) {
       this.namedConnectionString = new HashMap<>();
-      Scanner sc = new Scanner(params.datasources().orElse(""));
+      Scanner sc = new Scanner(params.getParam(DATASOURCES).orElse(""));
       while (sc.hasNext()) {
         String line = sc.nextLine();
         int i = line.indexOf('=');

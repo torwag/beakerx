@@ -31,10 +31,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
- import static com.twosigma.beakerx.evaluator.EvaluatorResultTestWatcher.waitForResult;
- import static com.twosigma.beakerx.jvm.object.SimpleEvaluationObject.EvaluationStatus.FINISHED;
-import static com.twosigma.beakerx.kernel.commands.MagicCommand.DATASOURCES;
-import static com.twosigma.beakerx.kernel.commands.MagicCommand.DEFAULT_DATASOURCE;
+import static com.twosigma.beakerx.evaluator.EvaluatorResultTestWatcher.waitForResult;
+import static com.twosigma.beakerx.jvm.object.SimpleEvaluationObject.EvaluationStatus.FINISHED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SQLEvaluatorTest {
@@ -92,8 +90,8 @@ public class SQLEvaluatorTest {
 
   private KernelParameters kernelParameters() {
     Map<String, Object> params = new HashMap<>();
-    params.put(DATASOURCES, "chemistry=jdbc:h2:mem:chemistry");
-    params.put(DEFAULT_DATASOURCE, "jdbc:h2:mem:db1");
+    params.put(SQLEvaluator.DATASOURCES, "chemistry=jdbc:h2:mem:chemistry");
+    params.put(SQLEvaluator.DEFAULT_DATASOURCE, "jdbc:h2:mem:db1");
     return new KernelParameters(params);
   }
 }
